@@ -115,4 +115,22 @@ test.group('Password Recover', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
   })
+
+  test('It should return 404 when using the same token more than once', async (assert) => {
+    const user = await UserFactory.create()
+
+    const { token } = await user.related('tokens').create({ token: 'test-token' })
+    const password = 'new-valid-password@123'
+
+    await supertest(BASE_URL).post('/reset-password').send({ token, password }).expect(204)
+
+    const { body } = await supertest(BASE_URL)
+      .post('/reset-password')
+      .send({ token, password })
+      .expect(404)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 404)
+  })
 })
