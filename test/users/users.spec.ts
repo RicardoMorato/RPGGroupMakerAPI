@@ -67,4 +67,12 @@ test.group('Users', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 400)
   })
+
+  test.only('It should return 422 when required data is not provided', async (assert) => {
+    const { body } = await supertest(BASE_URL).post('/users').send({}).expect(422)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
 })
