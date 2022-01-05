@@ -1,10 +1,20 @@
+import Database from '@ioc:Adonis/Lucid/Database'
+import { UserFactory } from 'Database/factories'
 import test from 'japa'
 import supertest from 'supertest'
 
 const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
 
-test.group('Users', () => {
-  test.only('It should create a user', async (assert) => {
+test.group('Users', (group) => {
+  group.beforeEach(async () => {
+    await Database.beginGlobalTransaction()
+  })
+
+  group.afterEach(async () => {
+    await Database.rollbackGlobalTransaction()
+  })
+
+  test('It should create a user', async (assert) => {
     const userPayload = {
       email: 'test@test.com',
       username: 'testUser',
@@ -20,5 +30,23 @@ test.group('Users', () => {
     assert.equal(body.user.username, userPayload.username)
     assert.equal(body.user.avatar, userPayload.avatar)
     assert.notExists(body.user.password, 'Password is defined')
+  })
+
+  test('It should return 400 when email is already in use', async (assert) => {
+    const { email } = await UserFactory.create()
+
+    const userPayload = {
+      email,
+      username: 'testUser',
+      password: 'test@123',
+      avatar: 'https://images.com/image/1',
+    }
+
+    const { body } = await supertest(BASE_URL).post('/users').send(userPayload).expect(400)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.include(body.message, 'Email')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 400)
   })
 })
