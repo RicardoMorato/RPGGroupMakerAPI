@@ -15,7 +15,7 @@ test.group('Password Recover', (group) => {
     await Database.rollbackGlobalTransaction()
   })
 
-  test.only('It should send an email with instructions to recover a forgotten password', async (assert) => {
+  test('It should send an email with instructions to recover a forgotten password', async (assert) => {
     const user = await UserFactory.create()
 
     // This method really "traps" the email, which means that it does not allow the email to be sent.
@@ -39,5 +39,21 @@ test.group('Password Recover', (group) => {
       .expect(204)
 
     Mail.restore()
+  })
+
+  test.only('It should create a reset password token', async (assert) => {
+    const user = await UserFactory.create()
+
+    await supertest(BASE_URL)
+      .post('/forgot-password')
+      .send({
+        email: user.email,
+        resetPasswordUrl: BASE_URL,
+      })
+      .expect(204)
+
+    const tokens = await user.related('tokens').query()
+
+    assert.isNotEmpty(tokens)
   })
 })
