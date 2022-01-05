@@ -1,5 +1,8 @@
 import Mail from '@ioc:Adonis/Addons/Mail'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { randomBytes } from 'crypto'
+import { promisify } from 'util'
+
 import User from 'App/Models/User'
 
 export default class PasswordsController {
@@ -7,6 +10,12 @@ export default class PasswordsController {
     const { email, resetPasswordUrl } = request.only(['email', 'resetPasswordUrl'])
 
     const user = await User.findByOrFail('email', email)
+
+    const random = await promisify(randomBytes)(24)
+    const token = random.toString('hex')
+    await user.related('tokens').updateOrCreate({ userId: user.id }, { token })
+
+    const resetPasswordUrlWithToken = `${resetPasswordUrl}?token=${token}`
 
     await Mail.send((message) => {
       message
@@ -16,7 +25,7 @@ export default class PasswordsController {
         .htmlView('emails/forgotpassword', {
           productName: 'RPGTableMaker',
           name: user.username,
-          resetPasswordUrl,
+          resetPasswordUrl: resetPasswordUrlWithToken,
         })
     })
 
