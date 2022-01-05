@@ -49,4 +49,22 @@ test.group('Users', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 400)
   })
+
+  test('It should return 400 when username is already in use', async (assert) => {
+    const { username } = await UserFactory.create()
+
+    const userPayload = {
+      username,
+      email: 'test@test.com',
+      password: 'test@123',
+      avatar: 'https://images.com/image/1',
+    }
+
+    const { body } = await supertest(BASE_URL).post('/users').send(userPayload).expect(400)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.include(body.message, 'Username')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 400)
+  })
 })
