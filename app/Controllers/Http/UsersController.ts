@@ -6,6 +6,9 @@ export default class UsersController {
   public async store({ request, response }: HttpContextContract) {
     const userPayload = request.only(['email', 'username', 'password', 'avatar'])
 
+    if (!userPayload.email || !userPayload.username || !userPayload.password)
+      throw new BadRequest('Not all required data was provided', 422)
+
     const userByEmail = await User.findBy('email', userPayload.email)
 
     if (userByEmail) throw new BadRequest('Email already in use', 400)
