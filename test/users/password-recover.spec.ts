@@ -18,6 +18,18 @@ test.group('Password Recover', (group) => {
   test.only('It should send an email with instructions to recover a forgotten password', async (assert) => {
     const user = await UserFactory.create()
 
+    // This method really "traps" the email, which means that it does not allow the email to be sent.
+    // Great for testing purposes
+    Mail.trap((message) => {
+      assert.deepEqual(message.to, [{ address: user.email }])
+      assert.deepEqual(message.from, {
+        address: 'no-reply@rpgtablemaker.com',
+      })
+      assert.equal(message.subject, 'RPGTableMaker: Recuperação de senha')
+      assert.exists(message.html, 'The email must have a HTML template')
+      assert.include(message.html!, user.username)
+    })
+
     await supertest(BASE_URL)
       .post('/forgot-password')
       .send({
@@ -25,15 +37,6 @@ test.group('Password Recover', (group) => {
         resetPasswordUrl: BASE_URL,
       })
       .expect(204)
-
-    Mail.trap((message) => {
-      assert.deepEqual(message.to, [{ address: user.email }])
-      assert.deepEqual(message.from, {
-        address: 'no-reply@rpgtablemaker.com',
-      })
-      assert.equal(message.subject, 'RPGTableMaker: Recuperação de senha')
-      assert.equal(message.text, 'Clique no link abaixo para redefinir sua senha')
-    })
 
     Mail.restore()
   })
