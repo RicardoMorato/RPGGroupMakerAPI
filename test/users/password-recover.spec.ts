@@ -41,7 +41,7 @@ test.group('Password Recover', (group) => {
     Mail.restore()
   })
 
-  test.only('It should create a reset password token', async (assert) => {
+  test('It should create a reset password token', async (assert) => {
     const user = await UserFactory.create()
 
     await supertest(BASE_URL)
@@ -55,5 +55,13 @@ test.group('Password Recover', (group) => {
     const tokens = await user.related('tokens').query()
 
     assert.isNotEmpty(tokens)
+  })
+
+  test('It should return 422 when required data is not provided', async (assert) => {
+    const { body } = await supertest(BASE_URL).post('/forgot-password').send({}).expect(422)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
   })
 })
