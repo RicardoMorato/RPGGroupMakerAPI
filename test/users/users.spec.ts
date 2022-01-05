@@ -178,9 +178,28 @@ test.group('Users', (group) => {
     const user = await UserFactory.create()
 
     const updateUserPayload = {
-      email: 'new_email@test.com',
+      email: user.email,
       password: '123',
       avatar: user.avatar,
+    }
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${user.id}`)
+      .send(updateUserPayload)
+      .expect(422)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+
+  test('It should return 422 when a invalid avatar is provided', async (assert) => {
+    const user = await UserFactory.create()
+
+    const updateUserPayload = {
+      email: user.email,
+      password: user.password,
+      avatar: 'invalid-avatar-url',
     }
 
     const { body } = await supertest(BASE_URL)
