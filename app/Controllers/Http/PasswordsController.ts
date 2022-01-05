@@ -5,6 +5,7 @@ import { promisify } from 'util'
 
 import User from 'App/Models/User'
 import ForgotPassword from 'App/Validators/ForgotPasswordValidator'
+import ResetPassword from 'App/Validators/ResetPasswordValidator'
 
 export default class PasswordsController {
   public async forgotPassword({ request, response }: HttpContextContract) {
@@ -34,7 +35,7 @@ export default class PasswordsController {
   }
 
   public async resetPassword({ request, response }: HttpContextContract) {
-    const { token, password } = request.only(['token', 'password'])
+    const { token, password } = await request.validate(ResetPassword)
 
     const user = await User.query()
       .whereHas('tokens', (query) => {
