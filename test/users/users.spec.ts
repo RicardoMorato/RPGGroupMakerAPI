@@ -144,4 +144,14 @@ test.group('Users', (group) => {
     assert.equal(body.user.id, user.id)
     assert.isTrue(await Hash.verify(user.password, password))
   })
+
+  test.only('It should return 422 when required data is not provided', async (assert) => {
+    const { id } = await UserFactory.create()
+
+    const { body } = await supertest(BASE_URL).put(`/users/${id}`).send({}).expect(422)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
 })
