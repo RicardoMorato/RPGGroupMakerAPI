@@ -71,4 +71,18 @@ test.group('Users', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
   })
+
+  test('It should return 422 when an invalid password is provided', async (assert) => {
+    const userPayload = {
+      email: 'test@test.com',
+      username: 'testUser',
+      password: '123',
+    }
+
+    const { body } = await supertest(BASE_URL).post('/users').send(userPayload).expect(422)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
 })
