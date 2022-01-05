@@ -173,4 +173,23 @@ test.group('Users', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
   })
+
+  test('It should return 422 when a invalid password is provided', async (assert) => {
+    const user = await UserFactory.create()
+
+    const updateUserPayload = {
+      email: 'new_email@test.com',
+      password: '123',
+      avatar: user.avatar,
+    }
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${user.id}`)
+      .send(updateUserPayload)
+      .expect(422)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
 })
