@@ -58,7 +58,7 @@ test.group('Password Recover', (group) => {
     assert.isNotEmpty(tokens)
   })
 
-  test('It should return 422 when required data is not provided', async (assert) => {
+  test('It should return 422 when required data is not provided on forgot-password', async (assert) => {
     const { body } = await supertest(BASE_URL).post('/forgot-password').send({}).expect(422)
 
     assert.exists(body.message, 'There is no error message in the body')
@@ -106,5 +106,13 @@ test.group('Password Recover', (group) => {
     const arePasswordsEqual = await Hash.verify(user.password, password)
 
     assert.isTrue(arePasswordsEqual)
+  })
+
+  test('It should return 422 when required data is not provided on reset-password', async (assert) => {
+    const { body } = await supertest(BASE_URL).post('/reset-password').send({}).expect(422)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
   })
 })
