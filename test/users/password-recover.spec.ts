@@ -65,12 +65,26 @@ test.group('Password Recover', (group) => {
     assert.equal(body.status, 422)
   })
 
-  test.only('It should return 422 when a invalid email is provided', async (assert) => {
+  test('It should return 422 when a invalid email is provided', async (assert) => {
     const { body } = await supertest(BASE_URL)
       .post('/forgot-password')
       .send({
         email: 'test@',
         resetPasswordUrl: BASE_URL,
+      })
+      .expect(422)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+
+  test('It should return 422 when a invalid resetPasswordUrl is provided', async (assert) => {
+    const { body } = await supertest(BASE_URL)
+      .post('/forgot-password')
+      .send({
+        email: 'test@',
+        resetPasswordUrl: 'invalid-reset-password-url',
       })
       .expect(422)
 
