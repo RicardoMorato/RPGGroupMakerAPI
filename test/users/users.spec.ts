@@ -19,7 +19,6 @@ test.group('Users', (group) => {
       email: 'test@test.com',
       username: 'testUser',
       password: 'test@123',
-      avatar: 'https://images.com/image/1',
     }
 
     const { body } = await supertest(BASE_URL).post('/users').send(userPayload).expect(201)
@@ -28,7 +27,6 @@ test.group('Users', (group) => {
     assert.exists(body.user.id, 'Id is undefined')
     assert.equal(body.user.email, userPayload.email)
     assert.equal(body.user.username, userPayload.username)
-    assert.equal(body.user.avatar, userPayload.avatar)
     assert.notExists(body.user.password, 'Password is defined')
   })
 
@@ -39,7 +37,6 @@ test.group('Users', (group) => {
       email,
       username: 'testUser',
       password: 'test@123',
-      avatar: 'https://images.com/image/1',
     }
 
     const { body } = await supertest(BASE_URL).post('/users').send(userPayload).expect(400)
@@ -57,7 +54,6 @@ test.group('Users', (group) => {
       username,
       email: 'test@test.com',
       password: 'test@123',
-      avatar: 'https://images.com/image/1',
     }
 
     const { body } = await supertest(BASE_URL).post('/users').send(userPayload).expect(400)
@@ -68,7 +64,7 @@ test.group('Users', (group) => {
     assert.equal(body.status, 400)
   })
 
-  test.only('It should return 422 when required data is not provided', async (assert) => {
+  test('It should return 422 when required data is not provided', async (assert) => {
     const { body } = await supertest(BASE_URL).post('/users').send({}).expect(422)
 
     assert.exists(body.message, 'There is no error message in the body')
