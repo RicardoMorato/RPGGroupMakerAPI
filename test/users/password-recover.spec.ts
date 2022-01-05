@@ -1,5 +1,6 @@
 import Mail from '@ioc:Adonis/Addons/Mail'
 import Database from '@ioc:Adonis/Lucid/Database'
+import Hash from '@ioc:Adonis/Core/Hash'
 import { UserFactory } from 'Database/factories'
 import test from 'japa'
 import supertest from 'supertest'
@@ -91,5 +92,19 @@ test.group('Password Recover', (group) => {
     assert.exists(body.message, 'There is no error message in the body')
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
+  })
+
+  test('It should be able to reset password', async (assert) => {
+    const user = await UserFactory.create()
+
+    const { token } = await user.related('tokens').create({ token: 'test-token' })
+    const password = 'new-valid-password@123'
+
+    await supertest(BASE_URL).post('/reset-password').send({ token, password }).expect(204)
+
+    await user.refresh()
+    const arePasswordsEqual = await Hash.verify(user.password, password)
+
+    assert.isTrue(arePasswordsEqual)
   })
 })
