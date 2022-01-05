@@ -145,10 +145,29 @@ test.group('Users', (group) => {
     assert.isTrue(await Hash.verify(user.password, password))
   })
 
-  test.only('It should return 422 when required data is not provided', async (assert) => {
+  test('It should return 422 when required data is not provided', async (assert) => {
     const { id } = await UserFactory.create()
 
     const { body } = await supertest(BASE_URL).put(`/users/${id}`).send({}).expect(422)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+
+  test('It should return 422 when a invalid email is provided', async (assert) => {
+    const user = await UserFactory.create()
+
+    const updateUserPayload = {
+      email: 'test@',
+      password: user.password,
+      avatar: user.avatar,
+    }
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${user.id}`)
+      .send(updateUserPayload)
+      .expect(422)
 
     assert.exists(body.message, 'There is no error message in the body')
     assert.equal(body.code, 'BAD_REQUEST')
