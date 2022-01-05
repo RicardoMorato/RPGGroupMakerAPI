@@ -4,6 +4,7 @@ import Hash from '@ioc:Adonis/Core/Hash'
 import { UserFactory } from 'Database/factories'
 import test from 'japa'
 import supertest from 'supertest'
+import { DateTime, Duration } from 'luxon'
 
 const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
 
@@ -132,5 +133,24 @@ test.group('Password Recover', (group) => {
     assert.exists(body.message, 'There is no error message in the body')
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 404)
+  })
+
+  test('It should not reset password when token is expired after 2 hours', async (assert) => {
+    const user = await UserFactory.create()
+
+    const date = DateTime.now().minus(Duration.fromISOTime('02:01'))
+
+    const { token } = await user.related('tokens').create({ token: 'test-token', createdAt: date })
+    const password = 'new-valid-password@123'
+
+    const { body } = await supertest(BASE_URL)
+      .post('/reset-password')
+      .send({ token, password })
+      .expect(410)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.message, 'Token has expired')
+    assert.equal(body.code, 'TOKEN_EXPIRED')
+    assert.equal(body.status, 410)
   })
 })
