@@ -19,6 +19,6 @@ test.group('Users', () => {
     assert.equal(body.user.email, userPayload.email)
     assert.equal(body.user.username, userPayload.username)
     assert.equal(body.user.avatar, userPayload.avatar)
-    assert.notEqual(body.user.password, userPayload.password)
+    assert.notExists(body.user.password, 'Password is defined')
   })
 })
