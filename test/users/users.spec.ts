@@ -6,6 +6,8 @@ import supertest from 'supertest'
 
 const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
 
+let TOKEN = ''
+
 test.group('Users', (group) => {
   group.beforeEach(async () => {
     await Database.beginGlobalTransaction()
@@ -13,6 +15,18 @@ test.group('Users', (group) => {
 
   group.afterEach(async () => {
     await Database.rollbackGlobalTransaction()
+  })
+
+  group.before(async () => {
+    const plainTextPassword = 'test@123'
+    const { email } = await UserFactory.merge({ password: plainTextPassword }).create()
+
+    const { body } = await supertest(BASE_URL)
+      .post('/sessions')
+      .send({ email, password: plainTextPassword })
+      .expect(201)
+
+    TOKEN = body.token.token
   })
 
   test('It should create a user', async (assert) => {
@@ -115,6 +129,7 @@ test.group('Users', (group) => {
     const { body } = await supertest(BASE_URL)
       .put(`/users/${id}`)
       .send(updateUserPayload)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(200)
 
     assert.exists(body.user, 'User is undefined')
@@ -135,6 +150,7 @@ test.group('Users', (group) => {
 
     const { body } = await supertest(BASE_URL)
       .put(`/users/${user.id}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .send(updateUserPayload)
       .expect(200)
 
@@ -148,7 +164,11 @@ test.group('Users', (group) => {
   test('It should return 422 when required data is not provided', async (assert) => {
     const { id } = await UserFactory.create()
 
-    const { body } = await supertest(BASE_URL).put(`/users/${id}`).send({}).expect(422)
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${id}`)
+      .send({})
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .expect(422)
 
     assert.exists(body.message, 'There is no error message in the body')
     assert.equal(body.code, 'BAD_REQUEST')
@@ -167,6 +187,7 @@ test.group('Users', (group) => {
     const { body } = await supertest(BASE_URL)
       .put(`/users/${user.id}`)
       .send(updateUserPayload)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(422)
 
     assert.exists(body.message, 'There is no error message in the body')
@@ -186,6 +207,7 @@ test.group('Users', (group) => {
     const { body } = await supertest(BASE_URL)
       .put(`/users/${user.id}`)
       .send(updateUserPayload)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(422)
 
     assert.exists(body.message, 'There is no error message in the body')
@@ -205,6 +227,7 @@ test.group('Users', (group) => {
     const { body } = await supertest(BASE_URL)
       .put(`/users/${user.id}`)
       .send(updateUserPayload)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(422)
 
     assert.exists(body.message, 'There is no error message in the body')
