@@ -60,4 +60,21 @@ test.group('Session', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 400)
   })
+
+  test('It should return 200 when user signs out', async () => {
+    const plainTextPassword = 'test@123'
+    const { email } = await UserFactory.merge({ password: plainTextPassword }).create()
+
+    const { body } = await supertest(BASE_URL)
+      .post('/sessions')
+      .send({ email, password: plainTextPassword })
+      .expect(201)
+
+    const apiToken = body.token
+
+    await supertest(BASE_URL)
+      .delete('/sessions')
+      .set('Authorization', `Bearer ${apiToken.token}`)
+      .expect(200)
+  })
 })
