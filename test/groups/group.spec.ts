@@ -14,7 +14,7 @@ test.group('Groups', (group) => {
     await Database.rollbackGlobalTransaction()
   })
 
-  test('It should create a group', async (assert) => {
+  test.only('It should create a group', async (assert) => {
     const user = await UserFactory.create()
     const groupPayload = {
       name: 'test-group',
@@ -34,6 +34,9 @@ test.group('Groups', (group) => {
     assert.equal(body.group.location, groupPayload.location)
     assert.equal(body.group.chronicle, groupPayload.chronicle)
     assert.equal(body.group.master, groupPayload.master)
+    assert.exists(body.group.players, 'Players are not defined')
+    assert.equal(body.group.players.length, 1)
+    assert.equal(body.group.players[0].id, groupPayload.master)
   })
 
   test('It should return 422 when required data is not provided', async (assert) => {
