@@ -3,7 +3,12 @@ import { UserFactory } from 'Database/factories'
 import test from 'japa'
 import supertest from 'supertest'
 
+import User from 'App/Models/User'
+
 const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
+
+let TOKEN = ''
+let USER = {} as User
 
 test.group('Groups', (group) => {
   group.beforeEach(async () => {
@@ -14,7 +19,24 @@ test.group('Groups', (group) => {
     await Database.rollbackGlobalTransaction()
   })
 
-  test.only('It should create a group', async (assert) => {
+  group.before(async () => {
+    const plainTextPassword = 'test@123'
+    const user = await UserFactory.merge({ password: plainTextPassword }).create()
+
+    const { body } = await supertest(BASE_URL)
+      .post('/sessions')
+      .send({ email: user.email, password: plainTextPassword })
+      .expect(201)
+
+    TOKEN = body.token.token
+    USER = user
+  })
+
+  group.after(async () => {
+    await supertest(BASE_URL).delete('/sessions').set('Authorization', `Bearer ${TOKEN}`)
+  })
+
+  test('It should create a group', async (assert) => {
     const user = await UserFactory.create()
     const groupPayload = {
       name: 'test-group',
@@ -25,7 +47,11 @@ test.group('Groups', (group) => {
       master: user.id,
     }
 
-    const { body } = await supertest(BASE_URL).post('/groups').send(groupPayload).expect(201)
+    const { body } = await supertest(BASE_URL)
+      .post('/groups')
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send(groupPayload)
+      .expect(201)
 
     assert.exists(body.group, 'Group is not defined')
     assert.equal(body.group.name, groupPayload.name)
@@ -40,7 +66,11 @@ test.group('Groups', (group) => {
   })
 
   test('It should return 422 when required data is not provided', async (assert) => {
-    const { body } = await supertest(BASE_URL).post('/groups').send({}).expect(422)
+    const { body } = await supertest(BASE_URL)
+      .post('/groups')
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send({})
+      .expect(422)
 
     assert.exists(body.message, 'Error message is not defined')
     assert.equal(body.code, 'BAD_REQUEST')
