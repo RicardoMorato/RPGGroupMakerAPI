@@ -26,4 +26,17 @@ test.group('Session', (group) => {
     assert.isDefined(body.user, 'User is not defined')
     assert.equal(body.user.id, id)
   })
+
+  test.only('It should create an api token when a session is created', async (assert) => {
+    const plainTextPassword = 'test@123'
+    const { id, email } = await UserFactory.merge({ password: plainTextPassword }).create()
+
+    const { body } = await supertest(BASE_URL)
+      .post('/sessions')
+      .send({ email, password: plainTextPassword })
+      .expect(201)
+
+    assert.isDefined(body.token, 'Session token is not defined')
+    assert.equal(body.user.id, id)
+  })
 })
