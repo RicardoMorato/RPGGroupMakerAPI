@@ -3,10 +3,12 @@ import Hash from '@ioc:Adonis/Core/Hash'
 import { UserFactory } from 'Database/factories'
 import test from 'japa'
 import supertest from 'supertest'
+import User from 'App/Models/User'
 
 const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
 
 let TOKEN = ''
+let USER = {} as User
 
 test.group('Users', (group) => {
   group.beforeEach(async () => {
@@ -19,14 +21,15 @@ test.group('Users', (group) => {
 
   group.before(async () => {
     const plainTextPassword = 'test@123'
-    const { email } = await UserFactory.merge({ password: plainTextPassword }).create()
+    const user = await UserFactory.merge({ password: plainTextPassword }).create()
 
     const { body } = await supertest(BASE_URL)
       .post('/sessions')
-      .send({ email, password: plainTextPassword })
+      .send({ email: user.email, password: plainTextPassword })
       .expect(201)
 
     TOKEN = body.token.token
+    USER = user
   })
 
   test('It should create a user', async (assert) => {
@@ -116,18 +119,17 @@ test.group('Users', (group) => {
   })
 
   test('It should update a user', async (assert) => {
-    const { id, password } = await UserFactory.create()
     const email = 'new_email@test.com'
     const avatar = 'http://github.com/RicardoMorato.png'
 
     const updateUserPayload = {
       email,
       avatar,
-      password,
+      password: USER.password,
     }
 
     const { body } = await supertest(BASE_URL)
-      .put(`/users/${id}`)
+      .put(`/users/${USER.id}`)
       .send(updateUserPayload)
       .set('Authorization', `Bearer ${TOKEN}`)
       .expect(200)
@@ -135,30 +137,29 @@ test.group('Users', (group) => {
     assert.exists(body.user, 'User is undefined')
     assert.equal(body.user.email, email)
     assert.equal(body.user.avatar, avatar)
-    assert.equal(body.user.id, id)
+    assert.equal(body.user.id, USER.id)
   })
 
   test("It should update the user's password", async (assert) => {
-    const user = await UserFactory.create()
     const password = 'test_password@123'
 
     const updateUserPayload = {
-      email: user.email,
-      avatar: user.avatar,
+      email: USER.email,
+      avatar: USER.avatar,
       password,
     }
 
     const { body } = await supertest(BASE_URL)
-      .put(`/users/${user.id}`)
+      .put(`/users/${USER.id}`)
       .set('Authorization', `Bearer ${TOKEN}`)
       .send(updateUserPayload)
       .expect(200)
 
-    await user.refresh()
+    await USER.refresh()
 
     assert.exists(body.user, 'User is undefined')
-    assert.equal(body.user.id, user.id)
-    assert.isTrue(await Hash.verify(user.password, password))
+    assert.equal(body.user.id, USER.id)
+    assert.isTrue(await Hash.verify(USER.password, password))
   })
 
   test('It should return 422 when required data is not provided', async (assert) => {
