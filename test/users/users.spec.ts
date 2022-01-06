@@ -32,6 +32,10 @@ test.group('Users', (group) => {
     USER = user
   })
 
+  group.after(async () => {
+    await supertest(BASE_URL).delete('/sessions').set('Authorization', `Bearer ${TOKEN}`)
+  })
+
   test('It should create a user', async (assert) => {
     const userPayload = {
       email: 'test@test.com',
