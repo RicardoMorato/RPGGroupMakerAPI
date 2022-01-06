@@ -14,7 +14,7 @@ test.group('Groups', (group) => {
     await Database.rollbackGlobalTransaction()
   })
 
-  test.only('It should create a group', async (assert) => {
+  test('It should create a group', async (assert) => {
     const user = await UserFactory.create()
     const groupPayload = {
       name: 'test-group',
@@ -34,5 +34,13 @@ test.group('Groups', (group) => {
     assert.equal(body.group.location, groupPayload.location)
     assert.equal(body.group.chronicle, groupPayload.chronicle)
     assert.equal(body.group.master, groupPayload.master)
+  })
+
+  test('It should return 422 when required data is not provided', async (assert) => {
+    const { body } = await supertest(BASE_URL).post('/groups').send({}).expect(422)
+
+    assert.exists(body.message, 'Error message is not defined')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
   })
 })
