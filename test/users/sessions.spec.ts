@@ -27,7 +27,7 @@ test.group('Session', (group) => {
     assert.equal(body.user.id, id)
   })
 
-  test.only('It should create an api token when a session is created', async (assert) => {
+  test('It should create an api token when a session is created', async (assert) => {
     const plainTextPassword = 'test@123'
     const { id, email } = await UserFactory.merge({ password: plainTextPassword }).create()
 
@@ -38,5 +38,13 @@ test.group('Session', (group) => {
 
     assert.isDefined(body.token, 'Session token is not defined')
     assert.equal(body.user.id, id)
+  })
+
+  test('It should return 400 when credentials are not provided', async (assert) => {
+    const { body } = await supertest(BASE_URL).post('/sessions').send({}).expect(400)
+
+    assert.exists(body.message, 'There is no error message in the body')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 400)
   })
 })
