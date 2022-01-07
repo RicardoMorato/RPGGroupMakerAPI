@@ -4,6 +4,7 @@ import test from 'japa'
 import supertest from 'supertest'
 
 import User from 'App/Models/User'
+import Group from 'App/Models/Group'
 
 const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
 
@@ -114,7 +115,7 @@ test.group('Groups', (group) => {
     assert.equal(body.status, 404)
   })
 
-  test.only('It should remove user from group', async (assert) => {
+  test('It should remove user from group', async (assert) => {
     // Create group with master being USER
     const group = await GroupFactory.merge({ master: USER.id }).create()
 
@@ -144,5 +145,30 @@ test.group('Groups', (group) => {
     await group.load('players')
 
     assert.isEmpty(group.players)
+  })
+
+  test('It should not remove the master of the group', async (assert) => {
+    const groupPayload = {
+      name: 'test-group',
+      description: 'test',
+      schedule: 'test',
+      location: 'test',
+      chronicle: 'test',
+      master: USER.id,
+    }
+
+    const { body } = await supertest(BASE_URL)
+      .post('/groups')
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send(groupPayload)
+
+    const groupId = body.group.id
+
+    await supertest(BASE_URL).delete(`/groups/${groupId}/players/${USER.id}`).expect(400)
+
+    const group = await Group.findOrFail(body.group.id)
+    await group.load('players')
+
+    assert.isNotEmpty(group.players)
   })
 })
