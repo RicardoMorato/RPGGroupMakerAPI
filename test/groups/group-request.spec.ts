@@ -195,4 +195,23 @@ test.group('Group Request', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 404)
   })
+
+  test('It should return 404 when providing an nonexisting group request', async (assert) => {
+    const master = await UserFactory.create()
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send({})
+
+    const invalidId = '123123213'
+    const { body } = await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests/${invalidId}/accept`)
+      .expect(404)
+
+    assert.exists(body.message, 'Error message is not defined')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 404)
+  })
 })
