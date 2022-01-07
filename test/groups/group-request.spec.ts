@@ -141,4 +141,15 @@ test.group('Group Request', (group) => {
     assert.exists(body.groupRequests, 'Group Requests are undefined')
     assert.equal(body.groupRequests.length, 0)
   })
+
+  test('It should return 422 when master is not provided', async (assert) => {
+    const master = await UserFactory.create()
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    const { body } = await supertest(BASE_URL).get(`/groups/${group.id}/requests`).expect(422)
+
+    assert.exists(body.message, 'Error message is not defined')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
 })
