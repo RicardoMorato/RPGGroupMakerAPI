@@ -198,4 +198,17 @@ test.group('Groups', (group) => {
     assert.isEmpty(emptyGroup)
     assert.isEmpty(players)
   })
+
+  test.only('It should return 404 when providing a nonexisting group for deletion', async (assert) => {
+    const invalidGroupId = '1238912312'
+
+    const { body } = await supertest(BASE_URL)
+      .delete(`/groups/${invalidGroupId}`)
+      .send({})
+      .expect(404)
+
+    assert.exists(body.message, 'Error message is not defined')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 404)
+  })
 })
