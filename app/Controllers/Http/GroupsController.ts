@@ -4,8 +4,20 @@ import CreateGroup from 'App/Validators/CreateGroupValidator'
 import BadRequest from 'App/Exceptions/BadRequestException'
 
 export default class GroupsController {
-  public async index({ response }: HttpContextContract) {
-    const groups = await Group.query().preload('players').preload('masterUser')
+  public async index({ request, response }: HttpContextContract) {
+    const { user: userId } = request.qs()
+
+    let groups = [] as Group[]
+
+    if (!userId) groups = await Group.query().preload('players').preload('masterUser')
+    else
+      groups = await Group.query()
+        .preload('players')
+        .preload('masterUser')
+        .whereHas('players', (query) => {
+          query.where('id', userId)
+        })
+
     return response.ok({ groups })
   }
 
