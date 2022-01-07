@@ -1,5 +1,5 @@
 import Database from '@ioc:Adonis/Lucid/Database'
-import { UserFactory } from 'Database/factories'
+import { GroupFactory, UserFactory } from 'Database/factories'
 import test from 'japa'
 import supertest from 'supertest'
 
@@ -75,5 +75,30 @@ test.group('Groups', (group) => {
     assert.exists(body.message, 'Error message is not defined')
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
+  })
+
+  test.only('It should update a group', async (assert) => {
+    const master = await UserFactory.create()
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    const payload = {
+      name: 'test-group',
+      description: 'test',
+      schedule: 'test',
+      location: 'test',
+      chronicle: 'test',
+    }
+
+    const { body } = await supertest(BASE_URL)
+      .patch(`/groups/${group.id}`)
+      .send(payload)
+      .expect(200)
+
+    assert.exists(body.group, 'Group is not defined')
+    assert.equal(body.group.name, payload.name)
+    assert.equal(body.group.description, payload.description)
+    assert.equal(body.group.schedule, payload.schedule)
+    assert.equal(body.group.location, payload.location)
+    assert.equal(body.group.chronicle, payload.chronicle)
   })
 })
