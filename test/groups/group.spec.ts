@@ -79,8 +79,7 @@ test.group('Groups', (group) => {
   })
 
   test('It should update a group', async (assert) => {
-    const master = await UserFactory.create()
-    const group = await GroupFactory.merge({ master: master.id }).create()
+    const group = await GroupFactory.merge({ master: USER.id }).create()
 
     const payload = {
       name: 'test-group',
