@@ -5,18 +5,28 @@ import BadRequest from 'App/Exceptions/BadRequestException'
 
 export default class GroupsController {
   public async index({ request, response }: HttpContextContract) {
-    const { user: userId } = request.qs()
+    const { user: userId, text } = request.qs()
 
     let groups = [] as Group[]
 
     if (!userId) groups = await Group.query().preload('players').preload('masterUser')
-    else
-      groups = await Group.query()
-        .preload('players')
-        .preload('masterUser')
-        .whereHas('players', (query) => {
-          query.where('id', userId)
-        })
+    else {
+      if (!text)
+        groups = await Group.query()
+          .preload('players')
+          .preload('masterUser')
+          .whereHas('players', (query) => {
+            query.where('id', userId)
+          })
+      else
+        groups = await Group.query()
+          .preload('players')
+          .preload('masterUser')
+          .whereHas('players', (query) => {
+            query.where('id', userId)
+          })
+          .where('name', 'LIKE', `%${text}%`)
+    }
 
     return response.ok({ groups })
   }
