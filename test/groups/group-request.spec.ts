@@ -152,4 +152,28 @@ test.group('Group Request', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
   })
+
+  test('It should accept a group request', async (assert) => {
+    const master = await UserFactory.create()
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    const { body } = await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send({})
+
+    const response = await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests/${body.groupRequest.id}/accept`)
+      .expect(200)
+
+    assert.exists(response.body.groupRequest, 'Group Request is not defined')
+    assert.equal(response.body.groupRequest.userId, USER.id)
+    assert.equal(response.body.groupRequest.groupId, group.id)
+    assert.equal(response.body.groupRequest.status, 'ACCEPTED')
+
+    await group.load('players')
+    assert.isNotEmpty(group.players, 'Group players is empty')
+    assert.equal(group.players.length, 1)
+    assert.equal(group.players[0].id, USER.id)
+  })
 })
