@@ -113,4 +113,36 @@ test.group('Groups', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 404)
   })
+
+  test.only('It should remove user from group', async (assert) => {
+    // Create group with master being USER
+    const group = await GroupFactory.merge({ master: USER.id }).create()
+
+    const plainTextPassword = 'test@123'
+    const newUser = await UserFactory.merge({ password: plainTextPassword }).create()
+
+    // Login with a new newUser
+    const response = await supertest(BASE_URL)
+      .post('/sessions')
+      .send({ email: newUser.email, password: plainTextPassword })
+    const playerToken = response.body.token.token
+
+    // As the newUser, ask to enter the group created previously
+    const { body } = await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${playerToken}`)
+      .send({})
+
+    // As the USER, accept the player in the group
+    await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests/${body.groupRequest.id}/accept`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .expect(200)
+
+    await supertest(BASE_URL).delete(`/groups/${group.id}/players/${newUser.id}`).expect(200)
+
+    await group.load('players')
+
+    assert.isEmpty(group.players)
+  })
 })
