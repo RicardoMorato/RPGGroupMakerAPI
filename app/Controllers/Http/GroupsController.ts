@@ -9,8 +9,15 @@ export default class GroupsController {
 
     let groups = [] as Group[]
 
-    if (!userId) groups = await Group.query().preload('players').preload('masterUser')
-    else {
+    if (!userId) {
+      if (!text) groups = await Group.query().preload('players').preload('masterUser')
+      else
+        groups = await Group.query()
+          .preload('players')
+          .preload('masterUser')
+          .where('name', 'LIKE', `%${text}%`)
+          .orWhere('description', 'LIKE', `%${text}%`)
+    } else {
       if (!text)
         groups = await Group.query()
           .preload('players')
