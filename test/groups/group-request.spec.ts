@@ -70,4 +70,32 @@ test.group('Group Request', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 409)
   })
+
+  test('It should return 422 when user is already in the group', async (assert) => {
+    const groupPayload = {
+      name: 'test-group',
+      description: 'test',
+      schedule: 'test',
+      location: 'test',
+      chronicle: 'test',
+      master: USER.id,
+    }
+
+    // Master is added to the group created
+    const response = await supertest(BASE_URL)
+      .post('/groups')
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send(groupPayload)
+
+    // A group request is fired, trying to add the master to the group again
+    const { body } = await supertest(BASE_URL)
+      .post(`/groups/${response.body.group.id}/requests`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send({})
+      .expect(422)
+
+    assert.exists(body.message, 'Error message is not defined')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
 })
