@@ -77,7 +77,7 @@ test.group('Groups', (group) => {
     assert.equal(body.status, 422)
   })
 
-  test.only('It should update a group', async (assert) => {
+  test('It should update a group', async (assert) => {
     const master = await UserFactory.create()
     const group = await GroupFactory.merge({ master: master.id }).create()
 
@@ -100,5 +100,17 @@ test.group('Groups', (group) => {
     assert.equal(body.group.schedule, payload.schedule)
     assert.equal(body.group.location, payload.location)
     assert.equal(body.group.chronicle, payload.chronicle)
+  })
+
+  test('It should return 404 when providing a nonexisting group for update', async (assert) => {
+    const invalidGroupId = '123123123213'
+    const { body } = await supertest(BASE_URL)
+      .patch(`/groups/${invalidGroupId}`)
+      .send({})
+      .expect(404)
+
+    assert.exists(body.message, 'Error message is not defined')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 404)
   })
 })
