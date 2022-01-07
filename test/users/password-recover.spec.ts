@@ -57,7 +57,7 @@ test.group('Password Recover', (group) => {
     const tokens = await user.related('tokens').query()
 
     assert.isNotEmpty(tokens)
-  })
+  }).timeout(6000)
 
   test('It should return 422 when required data is not provided on forgot-password', async (assert) => {
     const { body } = await supertest(BASE_URL).post('/forgot-password').send({}).expect(422)
