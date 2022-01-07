@@ -98,4 +98,30 @@ test.group('Group Request', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
   })
+
+  test('It should list group requests by master', async (assert) => {
+    const master = await UserFactory.create()
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    const response = await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send({})
+
+    const groupRequest = response.body.groupRequest
+
+    const { body } = await supertest(BASE_URL)
+      .get(`/groups/${group.id}/requests?master=${master.id}`)
+      .expect(200)
+
+    assert.exists(body.groupRequests, 'Group Requests are undefined')
+    assert.equal(body.groupRequests.length, 1)
+    assert.equal(body.groupRequests[0].id, groupRequest.id)
+    assert.equal(body.groupRequests[0].userId, groupRequest.userId)
+    assert.equal(body.groupRequests[0].groupId, groupRequest.groupId)
+    assert.equal(body.groupRequests[0].status, groupRequest.status)
+    assert.equal(body.groupRequests[0].group.name, group.name)
+    assert.equal(body.groupRequests[0].group.master, master.id)
+    assert.equal(body.groupRequests[0].user.username, USER.username)
+  })
 })
