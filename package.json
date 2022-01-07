@@ -1,7 +1,12 @@
 {
-  "name": "RPGTableMakerAPI",
+  "name": "RPGGroupMakerAPI",
   "version": "1.0.0",
   "private": false,
+  "author": {
+    "email": "ricardomoratodev@gmail.com",
+    "name": "Ricardo Morato",
+    "url": "https://github.com/RicardoMorato"
+  },
   "scripts": {
     "dev": "node ace serve --watch",
     "build": "node ace build --production",
