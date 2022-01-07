@@ -76,27 +76,21 @@ export default class GroupsController {
     return Group.query()
       .preload('players')
       .preload('masterUser')
-      .whereHas('players', (query) => {
-        query.where('id', userId)
-      })
+      .withScopes((scope) => scope.withPlayer(userId))
   }
 
   private _filterGroupsByText(text: string) {
     return Group.query()
       .preload('players')
       .preload('masterUser')
-      .where('name', 'LIKE', `%${text}%`)
-      .orWhere('description', 'LIKE', `%${text}%`)
+      .withScopes((scope) => scope.withText(text))
   }
 
   private _filterGroupsByUserAndText(userId: number, text: string) {
     return Group.query()
       .preload('players')
       .preload('masterUser')
-      .whereHas('players', (query) => {
-        query.where('id', userId)
-      })
-      .where('name', 'LIKE', `%${text}%`)
-      .orWhere('description', 'LIKE', `%${text}%`)
+      .withScopes((scope) => scope.withPlayer(userId))
+      .withScopes((scope) => scope.withText(text))
   }
 }
