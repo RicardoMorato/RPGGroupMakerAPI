@@ -233,4 +233,25 @@ test.group('Group Request', (group) => {
 
     assert.isNull(groupRequest)
   })
+
+  test.only('It should return 404 when providing a nonexisting group for rejection', async (assert) => {
+    const master = await UserFactory.create()
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    const response = await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send({})
+
+    const invalidId = '123123213'
+    const { body } = await supertest(BASE_URL)
+      .delete(`/groups/${invalidId}/requests/${response.body.groupRequest.id}`)
+      .expect(404)
+
+    assert.exists(body.message, 'Error message is not defined')
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 404)
+  })
+
+  // test.only('It should return 404 when providing a nonexisting group request for rejection', async (assert) => {})
 })
