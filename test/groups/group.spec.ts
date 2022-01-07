@@ -226,7 +226,7 @@ test.group('Groups', (group) => {
     assert.equal(body.status, 404)
   })
 
-  test.only('It should return all groups when no query is provided to list groups', async (assert) => {
+  test('It should return all groups when no query is provided to list groups', async (assert) => {
     const groupPayload = {
       name: 'test-group',
       description: 'test',
@@ -265,5 +265,32 @@ test.group('Groups', (group) => {
     assert.equal(body.groups[0].players[0].id, USER.id)
     assert.equal(body.groups[0].players[0].email, USER.email)
     assert.equal(body.groups[0].players[0].username, USER.username)
+  })
+
+  test('It should return no groups by user id', async (assert) => {
+    const groupPayload = {
+      name: 'test-group',
+      description: 'test',
+      schedule: 'test',
+      location: 'test',
+      chronicle: 'test',
+      master: USER.id,
+    }
+
+    await supertest(BASE_URL)
+      .post('/groups')
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send(groupPayload)
+      .expect(201)
+
+    const invalidUserId = 123
+
+    const { body } = await supertest(BASE_URL)
+      .get(`/groups?user=${invalidUserId}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .expect(200)
+
+    assert.exists(body.groups, 'Groups are not defined')
+    assert.equal(body.groups.length, 0)
   })
 })
