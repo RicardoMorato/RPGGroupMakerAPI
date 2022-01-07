@@ -7,34 +7,7 @@ export default class GroupsController {
   public async index({ request, response }: HttpContextContract) {
     const { user: userId, text } = request.qs()
 
-    let groups = [] as Group[]
-
-    if (!userId) {
-      if (!text) groups = await Group.query().preload('players').preload('masterUser')
-      else
-        groups = await Group.query()
-          .preload('players')
-          .preload('masterUser')
-          .where('name', 'LIKE', `%${text}%`)
-          .orWhere('description', 'LIKE', `%${text}%`)
-    } else {
-      if (!text)
-        groups = await Group.query()
-          .preload('players')
-          .preload('masterUser')
-          .whereHas('players', (query) => {
-            query.where('id', userId)
-          })
-      else
-        groups = await Group.query()
-          .preload('players')
-          .preload('masterUser')
-          .whereHas('players', (query) => {
-            query.where('id', userId)
-          })
-          .where('name', 'LIKE', `%${text}%`)
-          .orWhere('description', 'LIKE', `%${text}%`)
-    }
+    const groups = await this._filterByQueryString(userId, text)
 
     return response.ok({ groups })
   }
@@ -86,5 +59,44 @@ export default class GroupsController {
     await group.delete()
 
     return response.ok({})
+  }
+
+  private _filterByQueryString(userId: number | undefined, text: string | undefined) {
+    if (userId && text) return this._filterGroupsByUserAndText(userId, text)
+    else if (userId) return this._filterGroupsByUser(userId)
+    else if (text) return this._filterGroupsByText(text)
+    else return this._allGroups()
+  }
+
+  private _allGroups() {
+    return Group.query().preload('players').preload('masterUser')
+  }
+
+  private _filterGroupsByUser(userId: number) {
+    return Group.query()
+      .preload('players')
+      .preload('masterUser')
+      .whereHas('players', (query) => {
+        query.where('id', userId)
+      })
+  }
+
+  private _filterGroupsByText(text: string) {
+    return Group.query()
+      .preload('players')
+      .preload('masterUser')
+      .where('name', 'LIKE', `%${text}%`)
+      .orWhere('description', 'LIKE', `%${text}%`)
+  }
+
+  private _filterGroupsByUserAndText(userId: number, text: string) {
+    return Group.query()
+      .preload('players')
+      .preload('masterUser')
+      .whereHas('players', (query) => {
+        query.where('id', userId)
+      })
+      .where('name', 'LIKE', `%${text}%`)
+      .orWhere('description', 'LIKE', `%${text}%`)
   }
 }
