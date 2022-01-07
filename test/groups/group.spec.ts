@@ -92,6 +92,7 @@ test.group('Groups', (group) => {
 
     const { body } = await supertest(BASE_URL)
       .patch(`/groups/${group.id}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .send(payload)
       .expect(200)
 
@@ -107,6 +108,7 @@ test.group('Groups', (group) => {
     const invalidGroupId = '123123123213'
     const { body } = await supertest(BASE_URL)
       .patch(`/groups/${invalidGroupId}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .send({})
       .expect(404)
 
@@ -140,7 +142,11 @@ test.group('Groups', (group) => {
       .set('Authorization', `Bearer ${TOKEN}`)
       .expect(200)
 
-    await supertest(BASE_URL).delete(`/groups/${group.id}/players/${newUser.id}`).expect(200)
+    await supertest(BASE_URL)
+      .delete(`/groups/${group.id}/players/${newUser.id}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send({})
+      .expect(200)
 
     await group.load('players')
 
@@ -164,7 +170,11 @@ test.group('Groups', (group) => {
 
     const groupId = body.group.id
 
-    await supertest(BASE_URL).delete(`/groups/${groupId}/players/${USER.id}`).expect(400)
+    await supertest(BASE_URL)
+      .delete(`/groups/${groupId}/players/${USER.id}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send({})
+      .expect(400)
 
     const group = await Group.findOrFail(body.group.id)
     await group.load('players')
@@ -189,7 +199,11 @@ test.group('Groups', (group) => {
 
     const groupId = body.group.id
 
-    await supertest(BASE_URL).delete(`/groups/${groupId}`).send({}).expect(200)
+    await supertest(BASE_URL)
+      .delete(`/groups/${groupId}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .send({})
+      .expect(200)
 
     const emptyGroup = await Database.query().from('groups').where('id', groupId)
 
@@ -199,11 +213,12 @@ test.group('Groups', (group) => {
     assert.isEmpty(players)
   })
 
-  test.only('It should return 404 when providing a nonexisting group for deletion', async (assert) => {
+  test('It should return 404 when providing a nonexisting group for deletion', async (assert) => {
     const invalidGroupId = '1238912312'
 
     const { body } = await supertest(BASE_URL)
       .delete(`/groups/${invalidGroupId}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .send({})
       .expect(404)
 
