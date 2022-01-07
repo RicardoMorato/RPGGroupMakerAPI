@@ -113,6 +113,7 @@ test.group('Group Request', (group) => {
 
     const { body } = await supertest(BASE_URL)
       .get(`/groups/${group.id}/requests?master=${master.id}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(200)
 
     assert.exists(body.groupRequests, 'Group Requests are undefined')
@@ -137,6 +138,7 @@ test.group('Group Request', (group) => {
 
     const { body } = await supertest(BASE_URL)
       .get(`/groups/${group.id}/requests?master=${USER.id}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(200)
 
     assert.exists(body.groupRequests, 'Group Requests are undefined')
@@ -147,7 +149,10 @@ test.group('Group Request', (group) => {
     const master = await UserFactory.create()
     const group = await GroupFactory.merge({ master: master.id }).create()
 
-    const { body } = await supertest(BASE_URL).get(`/groups/${group.id}/requests`).expect(422)
+    const { body } = await supertest(BASE_URL)
+      .get(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${TOKEN}`)
+      .expect(422)
 
     assert.exists(body.message, 'Error message is not defined')
     assert.equal(body.code, 'BAD_REQUEST')
@@ -165,6 +170,7 @@ test.group('Group Request', (group) => {
 
     const response = await supertest(BASE_URL)
       .post(`/groups/${group.id}/requests/${body.groupRequest.id}/accept`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(200)
 
     assert.exists(response.body.groupRequest, 'Group Request is not defined')
@@ -190,6 +196,7 @@ test.group('Group Request', (group) => {
     const invalidId = '123123213'
     const { body } = await supertest(BASE_URL)
       .post(`/groups/${invalidId}/requests/${response.body.groupRequest.id}/accept`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(404)
 
     assert.exists(body.message, 'Error message is not defined')
@@ -209,6 +216,7 @@ test.group('Group Request', (group) => {
     const invalidId = '123123213'
     const { body } = await supertest(BASE_URL)
       .post(`/groups/${group.id}/requests/${invalidId}/accept`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(404)
 
     assert.exists(body.message, 'Error message is not defined')
@@ -227,6 +235,7 @@ test.group('Group Request', (group) => {
 
     await supertest(BASE_URL)
       .delete(`/groups/${group.id}/requests/${body.groupRequest.id}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(200)
 
     const groupRequest = await GroupRequest.find(body.groupRequest.id)
@@ -246,6 +255,7 @@ test.group('Group Request', (group) => {
     const invalidId = '123123213'
     const { body } = await supertest(BASE_URL)
       .delete(`/groups/${invalidId}/requests/${response.body.groupRequest.id}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(404)
 
     assert.exists(body.message, 'Error message is not defined')
@@ -265,6 +275,7 @@ test.group('Group Request', (group) => {
     const invalidId = '123123213'
     const { body } = await supertest(BASE_URL)
       .delete(`/groups/${group.id}/requests/${invalidId}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(404)
 
     assert.exists(body.message, 'Error message is not defined')
