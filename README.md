@@ -1,15 +1,13 @@
+<p align="center">
+  <img width="300" height="300" src="https://user-images.githubusercontent.com/56000167/148627804-6176f65a-be5d-49a7-9ba1-fb5a6cfb9d32.png" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/license/RicardoMorato/RPGTableMakerAPI.svg" />
+  <img src="https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square" />
+</p>
+
 # RPGGroupMakerAPI
-
-<div style="display:flex;flex-direction:column;align-self:center;align-items:center;justify-content:center">
-
-  ![RPGGroupMakerAPI_logo](https://user-images.githubusercontent.com/56000167/148627804-6176f65a-be5d-49a7-9ba1-fb5a6cfb9d32.png)
-
-  <div style="display:flex">
-    [![license](https://img.shields.io/github/license/RicardoMorato/RPGTableMakerAPI.svg)](LICENSE)
-    [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
-  </div>
-
-</div>
 
 An API to connect players and RPG groups.
 
