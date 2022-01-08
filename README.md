@@ -1,8 +1,15 @@
 # RPGGroupMakerAPI
 
-![RPGGroupMakerAPI_logo](https://user-images.githubusercontent.com/56000167/148627804-6176f65a-be5d-49a7-9ba1-fb5a6cfb9d32.png)
-[![license](https://img.shields.io/github/license/RicardoMorato/RPGTableMakerAPI.svg)](LICENSE)
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
+<div style="display:flex;flex-direction:column;align-self:center;align-items:center;justify-content:center">
+
+  ![RPGGroupMakerAPI_logo](https://user-images.githubusercontent.com/56000167/148627804-6176f65a-be5d-49a7-9ba1-fb5a6cfb9d32.png)
+
+  <div style="display:flex">
+    [![license](https://img.shields.io/github/license/RicardoMorato/RPGTableMakerAPI.svg)](LICENSE)
+    [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
+  </div>
+
+</div>
 
 An API to connect players and RPG groups.
 
@@ -17,7 +24,7 @@ Using this API you can easily connect with a RPG group and start having fun as s
 - [Background](#background)
 - [Security](#security)
 - [Install](#install)
-- [Using the API](#using_the_api)
+- [Using the API](#using-the-api)
 - [License](#license)
 
 ## Background
