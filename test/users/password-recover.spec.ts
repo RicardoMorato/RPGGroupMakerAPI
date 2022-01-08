@@ -6,7 +6,7 @@ import test from 'japa'
 import supertest from 'supertest'
 import { DateTime, Duration } from 'luxon'
 
-const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
+const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}/api/v1`
 
 test.group('Password Recover', (group) => {
   group.beforeEach(async () => {

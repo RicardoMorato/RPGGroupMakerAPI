@@ -5,7 +5,7 @@ import { GroupFactory, UserFactory } from 'Database/factories'
 import test from 'japa'
 import supertest from 'supertest'
 
-const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
+const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}/api/v1`
 
 let TOKEN = ''
 let USER = {} as User

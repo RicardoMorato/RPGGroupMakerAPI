@@ -5,7 +5,7 @@ import test from 'japa'
 import supertest from 'supertest'
 import User from 'App/Models/User'
 
-const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
+const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}/api/v1`
 
 let TOKEN = ''
 let USER = {} as User
