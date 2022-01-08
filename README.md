@@ -87,7 +87,7 @@ This API supports several request, such as:
 - Accept/Reject others from joining your RPG group;
 - Etc.
 
-You can see all supported features and their respective routes on [the routes file](start\routes.ts)
+You can see all supported features and their respective routes on [the routes file](https://github.com/RicardoMorato/RPGTableMakerAPI/blob/main/start/routes.ts)
 
 ## License
 
