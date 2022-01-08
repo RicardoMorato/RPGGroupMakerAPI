@@ -19,13 +19,13 @@ Using this API you can easily connect with a RPG group and start having fun as s
 
 ## Table of Contents
 
-- [Background](#background)
-- [Security](#security)
-- [Install](#install)
-- [Using the API](#using-the-api)
-- [License](#license)
+- [📚 Background](#background)
+- [🔐 Security](#security)
+- [✨ Install](#install)
+- [🔥 Using the API](#using-the-api)
+- [📝 License](#license)
 
-## Background
+## 📚 Background
 
 This project was strongly inspired by [Giuliana's Bezerra Adonis course on Udemy](https://www.udemy.com/course/api-completa-com-adonisjs-5-typescript-e-tdd/). I followed her lessons, and dug a little deeper, adding more testing cases, and this custom README section
 
@@ -36,7 +36,7 @@ The entire project was made using TDD, with the [japa test runner](https://githu
 - This is not a comercial API, nor a package of any kind, it was made purely for learning purposes;
 - It is a open-source project, so feel free to open an issue, or a PR if you would like to contribute to it.
 
-## Security
+## 🔐 Security
 
 All routes have strict authentication and authorization rules.
 
@@ -44,7 +44,7 @@ For every request (besides user login, and user creation) you must send a `Beare
 
 For some requests that update private info, authorization is also verified using [AdonisJs native bouncer](https://docs.adonisjs.com/guides/authorization)
 
-## Install
+## ✨ Install
 
 In order to run this project you should have a minimum knowledge of [AdonisJs](https://adonisjs.com/).
 
@@ -76,7 +76,7 @@ npm run dev
 
 This should run the development server on your localhost
 
-## Using the API
+## 🔥 Using the API
 
 This API supports several request, such as:
 
@@ -89,6 +89,6 @@ This API supports several request, such as:
 
 You can see all supported features and their respective routes on [the routes file](https://github.com/RicardoMorato/RPGTableMakerAPI/blob/main/start/routes.ts)
 
-## License
+## 📝 License
 
 This repository follows the license [GPL V3.](LICENSE)
